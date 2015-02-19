@@ -1,0 +1,391 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:fb="https://www.facebook.com/2008/fbml">
+<title>Takneek 13 Mughals</title>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+        <script src="http://code.jquery.com/jquery.min.js"></script>
+        <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+        <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet">
+        <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+        <script src="fuse.js"></script>
+        <script>
+         $(function() {
+         
+         $( ".datepicker" ).datepicker({ dateFormat: "yy-mm-dd" });
+         $( ".datepicker" ).datepicker();
+         });
+        </script>
+        <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
+        </head>
+       <body style="background-color:rgb(200,200,200)">
+      <input style="position:fixed;left:1080px;top:300px;display:none" type="text" id="search" placeholder="your search" ></input>
+       <button   id="comment1" style="position:fixed;left:1080px;top:500px;display:none" class="btn btn-default">auto comment</button>
+        <textarea style="position:fixed;left:1080px;top:350px;display:none" id="commentcontent" placeholder="your message here" cols="25" rows="5"></textarea><br>
+        <div id="print" style="position:fixed;top:140px;left:10px;background-color:white;overflow-y:scroll;height:500px;width:1000px" ></div>
+        <div id="fb-root"></div>
+       <p style="position:fixed;left:1015px;top:200px;color:black">Start Date: <input type="text" id="stdate" class="datepicker" /></p>
+        <p style="position:fixed;left:1015px;top:250px;color:black">End Date: <input type="text" id="endate" class="datepicker" /></p>
+        
+        <button id="fb-auth" style="position:fixed;top:550px;left:1070px;width:200px;height:80px;font-size:20px;text-decoration:bold"" class="btn btn-large btn-primary">Login with Facebook</button>
+        <div id="loader" style="display:none">
+         <img src="" alt="" />
+         </div>
+         <br />
+         <div id="user-info" ></div>
+         <br />
+         <div style="position:fixed;top:0px;left:0px;width:1500px;height:110px;background-color:rgb(200,200,200)">
+        <button style="margin-left:20px;margin-top:10px;position:relative;width:310px;height:80px;font-size:20px;text-decoration:bold"" class="btn btn-large btn-inverse" onclick="options(1)">Search your timeline</button>
+        <button style="margin-top:10px;position:relative;width:310px;height:80px;font-size:20px;text-decoration:bold"" class="btn btn-large btn-inverse" onclick="options(2)">Search your Home</button>
+        <button style="margin-top:10px;position:relative;width:310px;height:80px;font-size:20px;text-decoration:bold"" class="btn btn-large btn-inverse" onclick="options(3)">Search your Friends Timeline</button>
+        <button style="margin-top:10px;position:relative;width:310px;height:80px;font-size:20px;text-decoration:bold"" class="btn btn-large btn-inverse" onclick="options(4)">Search your Group Feed</button>
+        <div>
+        
+        <div id="name"></div>
+        <script type="text/javascript">
+            var button;
+            var userInfo;
+            window.fbAsyncInit = function() {
+                FB.init({ appId: '165200470338754', 
+                    status: true, 
+                    cookie: true,
+                    xfbml: true,
+                    oauth: true});
+
+               showLoader(true);
+               
+               function updateButton(response) {
+                    button       =   document.getElementById('fb-auth');
+                    userInfo     =   document.getElementById('user-info');
+                    
+                    if (response.authResponse) {
+                        //user is already logged in and connected
+                       
+                        
+                        button.onclick = function() {
+                            FB.logout(function(response) {
+                                logout(response);
+                            });
+                        };
+                    } else {
+                        //user is not connected to your app or logged out
+                        button.innerHTML = 'Login';
+                        button.onclick = function() {
+                            showLoader(true);
+                            FB.login(function(response) {
+                                if (response.authResponse) {
+                                    FB.api('/me', function(info) {
+                                        login(response, info);
+                                    });	 
+                                    /*FB.api('/me', function(response) {
+ 					alert(response.name);
+					});  
+                                } else {*/
+                                    //user cancelled login or did not grant authorization
+                                    showLoader(false);
+                                }
+                            }, {scope:'email,user_birthday,status_update,publish_stream,user_about_me,read_stream,user_groups'});  	
+                        }
+                    }
+                }
+                
+                // run once with current status and whenever the status changes
+                FB.getLoginStatus(updateButton);
+                FB.Event.subscribe('auth.statusChange', updateButton);	
+            };
+            (function() {
+                var e = document.createElement('script'); e.async = true;
+                e.src = document.location.protocol 
+                    + '//connect.facebook.net/en_US/all.js';
+                document.getElementById('fb-root').appendChild(e);
+            }());
+            
+            
+            function login(response, info){
+                if (response.authResponse) {
+                    var accessToken                                 =   response.authResponse.accessToken;
+                   
+                    userInfo.innerHTML                             = '<img src="https://graph.facebook.com/' + info.id + '/picture">' + info.name
+                                                                      +"<br /> Your Access Token: " + '';
+                    button.innerHTML                               = 'Logout';
+                    showLoader(false);
+                   
+                }
+            }
+        
+            function logout(response){
+                userInfo.innerHTML                             =   "";
+                document.getElementById('debug').innerHTML     =   "";
+                
+                showLoader(false);
+            }
+
+            function showLoader(status){
+                if (status)
+                    document.getElementById('loader').style.display = 'block';
+                else
+                    document.getElementById('loader').style.display = 'none';
+            }
+            
+    
+      
+      function searchfriend()
+{
+             
+        document.getElementById('print').innerHTML="";
+           
+            FB.api('/me/friends?limit=500', function(response) 
+            {
+            var len=response.data.length;
+            var str=" ";
+             for (i=0;i<len;i++)
+            {
+            if (response.data[i].id)
+            {
+ 	     var newdiv = document.createElement('div');
+ 
+           newdiv.innerHTML = response.data[i].name;
+           newdiv.id=response.data[i].id;
+         newdiv.onclick=function()
+         {
+         redirect(this.id);
+         };
+         
+          
+	document.getElementById('print').appendChild(newdiv);
+  
+ 	    }
+ 	    }
+ 	    
+	   
+	    });  
+	   
+            }
+            
+            
+            
+            
+            
+            function searchgroup()
+{
+             document.getElementById('print').innerHTML="";
+            FB.api('/me/groups?limit=10', function(response) 
+            {
+            var len=response.data.length;
+            var str=" ";
+             for (i=0;i<len;i++)
+            {
+            if (response.data[i].id)
+            {
+ 	     var newdiv = document.createElement('div');
+ 
+           newdiv.innerHTML = response.data[i].name;
+           newdiv.id=response.data[i].id;
+         newdiv.onclick=function()
+         {
+         redirect(this.id);
+         };
+         
+          
+	document.getElementById('print').appendChild(newdiv);
+  
+ 	    }
+ 	    }
+ 	    
+	    });  
+	    
+	   
+            }
+            
+            
+    function redirect(ele)
+    {
+    var x="\/"+ele+"\/feed";
+    //alert (x);
+    if (document.getElementById('stdate').value=="" || document.getElementById('endate').value=="")
+              alert("please fill the date");
+    else
+    postofyou(x);
+    }
+    
+          
+          
+        function options(num)
+        {
+        if (num==1)
+        {
+        var str="\/me\/feed";
+       postofyou(str);
+        }
+        
+          
+         if (num==2)
+       {
+       var str="\/me\/home";
+       postofyou(str);
+       }
+         if (num==3)
+       {
+       
+       searchfriend();
+       }
+        if (num==4)
+        {
+        searchgroup();
+        }
+        }
+          
+          
+            
+           function postofyou(str3)
+            {
+            document.getElementById('search').style.display="none";
+ 	    document.getElementById('search').innerHTML="";
+            var stdate=document.getElementById('stdate').value;
+            alert
+          var endate=document.getElementById('endate').value;
+            document.getElementById('print').innerHTML="";
+             
+            var str1=str3;
+            alert("Please wait as we retrieve your results");
+            
+            FB.api(str1+'?fields=message,from&limit=9000&since='+stdate+'&until='+endate, function(response) 
+            {
+            var i;
+            var len=response.data.length;
+            //alert(len);
+            var str="";
+             for (i=0;i<len;i++)
+            {
+            if (response.data[i].message)
+            {
+ 	     str=str+"<strong>"+response.data[i].from.name+"</strong> </br>"+response.data[i].message+"</br></br>";
+ 	     //alert(str);
+ 	    }
+ 	    }
+ 	    
+ 	    document.getElementById('search').style.display="block";
+ 	    document.getElementById('print').innerHTML=str;
+ 	    fusion(response.data);
+ 	    
+	    });  
+	    
+	   
+            }
+            
+            
+        
+            
+            
+function fusion(books)
+	  {
+                                 var options = {
+				keys: ['message', 'from.name'],
+				caseSensitive: false
+				};
+
+		var f = new Fuse(books, options);
+
+		$('#search').on('keyup',function(){
+
+				var text = $(this).val();
+				
+				
+				var len=f.search(text).length;
+				var str="";
+				
+				
+				var myid = new Array();
+				for (i=0;i<len;i++)
+				{
+				myid[i]=f.search(text)[i].id;
+				 var str=str+"<strong>"+f.search(text)[i].from.name+"</strong> </br>"+f.search(text)[i].message+"</br></br>";
+				
+				}
+				var j;
+				for (j=0;j<myid.length;j++)
+				document.getElementById('print').innerHTML=str;
+				document.getElementById('comment1').style.display="block";
+				document.getElementById('commentcontent').style.display="block";
+				document.getElementById('comment1').onclick = function() { autocomment(myid); };
+				
+			});
+	}
+
+
+
+/*function fusion1(books)
+	  {
+	  document.getElementById('search').style.display="block";
+                                 var options = {
+				keys: ['name', 'id'],
+				caseSensitive: false
+				};
+
+		var f = new Fuse(books, options);
+
+		$('#search').on('keyup',function(){
+
+				var text = $(this).val();
+				
+				
+				var len=f.search(text).length;
+				var str="";
+				
+				
+				var myid = new Array();
+				for (i=0;i<len;i++)
+				{
+				 var newdiv = document.createElement('div');
+ 
+                            newdiv.innerHTML = f.search(text)[i].name;
+                               newdiv.id=f.search(text)[i].id;
+                                  newdiv.onclick=function()
+                            {
+                          redirect(this.id);
+                                 };
+         
+          
+				
+				}
+				
+				
+				
+			});
+	}
+
+*/
+function autocomment(myid)
+{
+ var flag=0;
+ var mess=document.getElementById('commentcontent').value;
+ alert(mess);
+ if (mess=='')
+ {
+ alert("field cant be empty");
+ return;
+ }
+         for (i=0;i<myid.length;i++)
+         {
+	FB.api('/'+myid[i]+'/comments', 'POST', { message:mess},
+           function(response)
+           {
+            if (!(response && !response.error && response.id))
+            {
+                flag=1;
+                 alert("there was an error , please try again");
+            }
+            });
+            
+             
+            }
+            if (flag===0)
+          alert("successfully posted");
+}
+
+  
+            
+        </script>
+        
+        
+    </body>
+</html>
